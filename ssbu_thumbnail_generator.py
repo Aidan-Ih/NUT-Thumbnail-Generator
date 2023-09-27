@@ -4,19 +4,13 @@ import csv
 import json
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageOps
 
-# Read config json
-with open("config.json") as load_config:
-    config = json.load(load_config)
-BACKGROUND_PATH = config['vods']
-LOGO_PATH = config['logo_path']
-COLOR_RECTANGLE = config['rect_color']
-COLOR_TRIANGLE = config['tri_color']
-font = ImageFont.truetype(config['font'], config['font_size'])
+def format_character(str):
+    return str.replace('.', '').replace('-','').replace('&', "and").lower()
 
 # Read config json
 with open("config.json") as load_config:
     config = json.load(load_config)
-BACKGROUND_PATH = config["vods"]
+BACKGROUND_PATH = config["background_path"]
 LOGO_PATH = config['logo_path']
 COLOR_RECTANGLE = config['rect_color']
 COLOR_TRIANGLE = config['tri_color']
@@ -24,7 +18,7 @@ font = ImageFont.truetype(config['font'], config['font_size'])
 
 # Import a CSV with
 # Player 1 Name (Ex. B3nan)
-# Player 2 Name (Ex. Rrs)
+# Player 2 Name (Ex. Rrs) 
 # Player 1 Characters (Ex. Pichu)
 # Player 2 Character (Ex. Mario, Diddy Kong)
     # Note: Insert first character in graphic, rest in title
@@ -34,7 +28,7 @@ with open('vods.csv', newline='') as csv_file:
     csv_reader = csv.reader(csv_file)
     next(csv_reader) #Skip first line
     data = list(csv_reader)
-    
+     
     # Initialize data
     tournament = []
     event = []
@@ -44,7 +38,6 @@ with open('vods.csv', newline='') as csv_file:
     player_1_character = []
     player_2_character = []
     
-    print(data)
     # Load data from CSV
     for line in data:
         tournament.append(line[0])
@@ -56,6 +49,7 @@ with open('vods.csv', newline='') as csv_file:
         player_2_character.append(line[6])
 
 for num in range(len(tournament)):
+    print("Generating " + str(num) + "/" + str(len(tournament) - 1))
     background = Image.open(BACKGROUND_PATH).resize((1280, 720))
     logo = Image.open(LOGO_PATH).resize((200, 200))
     
@@ -63,7 +57,7 @@ for num in range(len(tournament)):
     character_1 = Image.open(r"P1_Murals/{}.png".format(format_character(player_1_character[num].split(',')[0])))
     character_2 = Image.open(r"P2_Murals/{}.png".format(format_character(player_2_character[num].split(',')[0])))
     
-    # Overlay character
+    # Overlay character 
     background.paste(character_1, (0, 0), character_1)
     background.paste(character_2, (0, 0), character_2)
     
@@ -93,16 +87,16 @@ for num in range(len(tournament)):
     text_layer = Image.new('L', (1280, 720))
     draw = ImageDraw.Draw(text_layer)
     
-    p1_width = font.getsize(player_1_name[num].upper())[0]
+    p1_width = font.getbbox(player_1_name[num].upper())[2]
     draw.text(((320 - (p1_width / 2)), -13), player_1_name[num].upper(), font=font, fill=255)
 
-    p2_width = font.getsize(player_2_name[num].upper())[0]
+    p2_width = font.getbbox(player_2_name[num].upper())[2]
     draw.text(((960 - (p2_width / 2)), 13), player_2_name[num].upper(), font=font, fill=255)
     
-    bracket_round_width = font.getsize(bracket_round[num].upper())[0]
+    bracket_round_width = font.getbbox(bracket_round[num].upper())[2]
     draw.text(((320 - (bracket_round_width / 2)), 600), bracket_round[num].upper(), font=font, fill=255)
     
-    event_width = font.getsize(event[num].upper())[0]
+    event_width = font.getbbox(event[num].upper())[2]
     draw.text(((960 - (event_width / 2)), 630), event[num].upper(), font=font, fill=255)
     
     # Rotate text
